@@ -31,10 +31,10 @@ jobs:
           UNIQUE_CLONERS=$(curl -s -H "Authorization: token $GH_TOKEN" \
             https://api.github.com/repos/$OWNER/$REPO/traffic/clones | grep -o '"uniques":[0-9]*' | cut -d: -f2)
 
-          sed -i "s/TRAFFIC_VIEWS/$VIEWS/" README.md
-          sed -i "s/TRAFFIC_UNIQUE_VISITORS/$UNIQUE_VISITORS/" README.md
-          sed -i "s/TRAFFIC_CLONES/$CLONES/" README.md
-          sed -i "s/TRAFFIC_UNIQUE_CLONERS/$UNIQUE_CLONERS/" README.md
+          sed -i "s/TRAFFIC_VIEWS/$VIEWS/" ReadMe.md
+          sed -i "s/TRAFFIC_UNIQUE_VISITORS/$UNIQUE_VISITORS/" ReadMe.md
+          sed -i "s/TRAFFIC_CLONES/$CLONES/" ReadMe.md
+          sed -i "s/TRAFFIC_UNIQUE_CLONERS/$UNIQUE_CLONERS/" ReadMe.md
 
       - name: Commit changes
         run: |
