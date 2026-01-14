@@ -1,0 +1,54 @@
+name: Update GitHub Traffic Stats
+
+on:
+  schedule:
+    - cron: "0 0 * * *"   # Runs daily
+  workflow_dispatch:
+
+jobs:
+  traffic:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Fetch traffic data
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          OWNER=$(echo "${{ github.repository }}" | cut -d'/' -f1)
+          REPO=$(echo "${{ github.repository }}" | cut -d'/' -f2)
+
+          VIEWS=$(curl -s \
+            -H "Authorization: token $GH_TOKEN" \
+            https://api.github.com/repos/$OWNER/$REPO/traffic/views \
+            | jq '.count')
+
+          UNIQUE_VISITORS=$(curl -s \
+            -H "Authorization: token $GH_TOKEN" \
+            https://api.github.com/repos/$OWNER/$REPO/traffic/views \
+            | jq '.uniques')
+
+          CLONES=$(curl -s \
+            -H "Authorization: token $GH_TOKEN" \
+            https://api.github.com/repos/$OWNER/$REPO/traffic/clones \
+            | jq '.count')
+
+          UNIQUE_CLONERS=$(curl -s \
+            -H "Authorization: token $GH_TOKEN" \
+            https://api.github.com/repos/$OWNER/$REPO/traffic/clones \
+            | jq '.uniques')
+
+          sed -i "s/TRAFFIC_VIEWS/$VIEWS/" README.md
+          sed -i "s/TRAFFIC_UNIQUE_VISITORS/$UNIQUE_VISITORS/" README.md
+          sed -i "s/TRAFFIC_CLONES/$CLONES/" README.md
+          sed -i "s/TRAFFIC_UNIQUE_CLONERS/$UNIQUE_CLONERS/" README.md
+
+      - name: Commit and push changes
+        run: |
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+          git add README.md
+          git commit -m "📊 Update traffic stats" || exit 0
+          git push
